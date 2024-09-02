@@ -1,0 +1,38 @@
+base_url = "https://abdullahxz.github.io"
+title = "Abdullahxz"
+build_search_index = true
+generate_feeds = true
+minify_html = true
+
+theme = "apollo"
+taxonomies = [{ name = "tags" }]
+
+[markdown]
+highlight_code = true
+highlight_theme = "ayu-light"
+external_links_target_blank = true
+
+[extra]
+use_cdn = false
+favicon = "/icon/star.png"
+theme = "toggle"
+
+menu = [
+    { name = "/posts", url = "/posts", weight = 1 },
+    { name = "/tags", url = "/tags", weight = 2 },
+    { name = "/projects", url = "/projects", weight = 3 },
+    { name = "/about", url = "/about", weight = 4 },
+]
+
+socials = [
+    { name = "github", url = "https://github.com/Abdullahxz/", icon = "github" },
+]
+
+[extra.analytics]
+enabled = true
+
+[extra.analytics.goatcounter]
+user = ""
+
+[extra.analytics.umami]
+website_id = ""
