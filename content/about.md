@@ -10,7 +10,7 @@ Hey, I'm @Abdullahxz. I'm interested in:
 - Containers
 - System Architecture
 
-I work at Azm where I focus mainly on DevSecOps along with backend systems engineering. When I am not in the tech zone, you can probably find me on a road trip.
+I work at Azm where I focus mainly on DevSecOps / SRE and backend engineering. I'm also a long-time fan of poorly written software, having developed it my entire career. When I am not in the tech zone, you can probably find me on a road trip.
 
 # Contact
 Linkedin: [https://www.linkedin.com/in/abdullah-shahid-/](https://www.linkedin.com/in/abdullah-shahid-/) <br />

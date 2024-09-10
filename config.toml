@@ -14,7 +14,7 @@ external_links_target_blank = true
 
 [extra]
 use_cdn = false
-favicon = "/icon/star.png"
+favicon = "/icon/favicon.ico"
 theme = "toggle"
 
 menu = [
@@ -32,7 +32,7 @@ socials = [
 enabled = true
 
 [extra.analytics.goatcounter]
-user = ""
+user = "abdullahxz"
 
 [extra.analytics.umami]
-website_id = ""
+website_id = "6df23ebd-7d64-43e6-bab9-d5a5f9a1eb79"
