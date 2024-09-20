@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>Abdullahxz</title>
+    <link rel="self" type="application/atom+xml" href="https://abdullahxz.github.io/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://abdullahxz.github.io"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-09-08T00:00:00+00:00</updated>
+    <id>https://abdullahxz.github.io/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Hello, World!</title>
+        <published>2024-09-08T00:00:00+00:00</published>
+        <updated>2024-09-08T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://abdullahxz.github.io/posts/hello-world/"/>
+        <id>https://abdullahxz.github.io/posts/hello-world/</id>
+        
+        <content type="html" xml:base="https://abdullahxz.github.io/posts/hello-world/">&lt;p&gt;👋 Hi, I’m Abdullah, a software engineer with a deep-seated passion for distributed systems, containers, and system architecture. My journey in technology has been driven by an insatiable curiosity and a desire to truly understand the inner workings of the systems we build and rely on. I also occasionally write code that requires actual effort, but prefer not to. When I’m not fixing totally obvious errors in my code, I’m usually exploring some of my other passions.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;It&#x27;s hard enough to find an error in your code when you&#x27;re looking for it;
+it&#x27;s even harder when you&#x27;ve assumed your code is error-free.&lt;br&gt;
+— &lt;cite&gt;Steve McConnell&lt;&#x2F;cite&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;In my free time I read weird blogs, build side projects, watch podcasts I don&#x27;t understand, and sporadically go swimming. I love reasoning about, improving, and designing systems and infrastructure.&lt;&#x2F;p&gt;
+&lt;p&gt;An abridged list of things I am passionate about:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Architecture.&lt;&#x2F;li&gt;
+&lt;li&gt;Walkable cities.&lt;&#x2F;li&gt;
+&lt;li&gt;Mathematics. (The easy parts :))&lt;&#x2F;li&gt;
+&lt;li&gt;Aerospace Enineering.&lt;&#x2F;li&gt;
+&lt;li&gt;Traveling.&lt;&#x2F;li&gt;
+&lt;li&gt;Space.&lt;&#x2F;li&gt;
+&lt;li&gt;Sports.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;The way we live is shaped by the cities we live in, so it’s important to get them right. Ideally, owning a car should not be a necessity to live in a city. Infact, cities should be designed for people and not cars. There are countless health and economic benefits to designing the cities this way which probably deserve a longer write-up. Maybe tomorrow.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If I am not for myself, then who will be for me? And if I am only for myself, then what am I? And if not now, when?&lt;br&gt;
+— &lt;cite&gt;Hillel&lt;&#x2F;cite&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Engineering cutriosity has become second nature to me at this point. I wasn&#x27;t always a curious individual however in college something happend and I could not really tell what but since than I’ve been enthralled by how things work. And this interest extends far beyond computers for me. It&#x27;s the reason that got me interested in math, engineering principles, and &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;worrydream.com&#x2F;refs&#x2F;Hamming_1997_-_The_Art_of_Doing_Science_and_Engineering.pdf&quot;&gt;the art of doing science and engineering&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Some people never go crazy. What truly horrible lives they must lead.&lt;br&gt;
+— &lt;cite&gt;Charles Bukowski&lt;&#x2F;cite&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Outside of work and personal interests, I like to spend time with a few special people. They keep me grounded, challenge my thinking, and help me grow.&lt;&#x2F;p&gt;
+&lt;p&gt;While this post is a bit more personal, most of what you’ll find here will be related to computer science and the stuff I work on. I’ll probably ramble from time to time about programming languages, algorithms, best practices, system design, and also my terrible code. I’m excited to share what I learn and hopefully provide something valuable as in what not to do. I will leave you with this excerpt from Structure and Interpretation of Computer Programs by Abelson and Sussman.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Programs should be written for people to read, and only incidentally for machines to execute.&lt;br&gt;
+— &lt;cite&gt;Harold Abelson and Gerald Jay Sussman (Structure and Interpretation of Computer Programs)&lt;&#x2F;cite&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</content>
+        
+    </entry>
+</feed>
