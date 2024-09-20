@@ -3,7 +3,7 @@ title = "Hello, World!"
 date = 2024-09-08
 +++
 
-👋 Hi, I’m Abdullah. I occasionally write code that requires actual effort, but prefer not to. When I’m not fixing totally obvious errors in my code, I’m usually exploring some of my other passions.
+👋 Hi, I’m Abdullah, a software engineer with a deep-seated passion for distributed systems, containers, and system architecture. My journey in technology has been driven by an insatiable curiosity and a desire to truly understand the inner workings of the systems we build and rely on. I also occasionally write code that requires actual effort, but prefer not to. When I’m not fixing totally obvious errors in my code, I’m usually exploring some of my other passions.
 
 > It's hard enough to find an error in your code when you're looking for it;
 > it's even harder when you've assumed your code is error-free.<br>
@@ -16,7 +16,6 @@ An abridged list of things I am passionate about:
 - Architecture.
 - Walkable cities.
 - Mathematics. (The easy parts :))
-- Engineering cool stuff.
 - Aerospace Enineering.
 - Traveling.
 - Space.
@@ -34,7 +33,7 @@ Engineering cutriosity has become second nature to me at this point. I wasn't al
 
 Outside of work and personal interests, I like to spend time with a few special people. They keep me grounded, challenge my thinking, and help me grow.
 
-While this post is a bit more personal, most of what you’ll find here will be related to computer science and the stuff I work on. I’ll probably ramble from time to time about programming languages, algorithms, best practices, system design, and also my terrible code. I’m excited to share what I learn and hopefully provide something valuable as in what not to do.
+While this post is a bit more personal, most of what you’ll find here will be related to computer science and the stuff I work on. I’ll probably ramble from time to time about programming languages, algorithms, best practices, system design, and also my terrible code. I’m excited to share what I learn and hopefully provide something valuable as in what not to do. I will leave you with this excerpt from Structure and Interpretation of Computer Programs by Abelson and Sussman.
 
 > Programs should be written for people to read, and only incidentally for machines to execute.<br>
 > — <cite>Harold Abelson and Gerald Jay Sussman (Structure and Interpretation of Computer Programs)</cite>
