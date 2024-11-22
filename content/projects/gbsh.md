@@ -1,5 +1,5 @@
 +++
-title = "gbsh"
+title = "gbsh 🐚"
 description = "A custom shell implementation for Linux systems written in C."
 weight = 1
 

@@ -1,5 +1,5 @@
 +++
-title = "DoDo"
+title = "DoDo 📜"
 description = "A todo app, the holy grail of learning something new."
 weight = 1
 
