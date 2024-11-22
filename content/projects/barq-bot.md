@@ -1,5 +1,5 @@
 +++
-title = "Barq bot"
+title = "Barq bot 🏎"
 description = "A hobby project I have been working on to tinker with Robotics."
 weight = 0
 

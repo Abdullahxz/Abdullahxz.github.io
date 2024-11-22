@@ -1,5 +1,5 @@
 +++
-title = "Shipr🚢"
+title = "Shipr 🚢"
 description = "A personal project aimed at helping folks understand distributed microservice architecture."
 weight = 0
 
