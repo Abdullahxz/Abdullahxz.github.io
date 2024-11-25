@@ -15,7 +15,7 @@ main img {
 
 # What even is WebAssembly?
 
-WebAssembly introduces huge implications for what's possible on the web platform, it's a binary instruction format optimized for fast execution, allowing code written in languages like C, C++, and Rust to run with near-native speed in the browser. By operating as a low-level virtual machine, WebAssembly executes tasks in a manner similar to how native applications do, but within the web's security sandbox. This makes it possible to run performance intensive applications, such as video games, computer vision, virtual and augmented reality, and realtime data intensive visualizations, directly in the browser. Each of the major browsers have their own WebAssembly runtime to support these kind of applications.
+WebAssembly introduces huge implications for what's possible on the web platform, it's a binary instruction format optimized for fast execution, allowing code written in languages like C, C++, and Rust to run with near-native speed in the browser. By operating as a low-level virtual machine, WebAssembly executes tasks in a manner similar to how native applications do, but within the web's security sandbox. This makes it possible to run performance intensive applications, such as video games, computer vision, virtual and augmented reality, and realtime data intensive visualizations, directly in the browser. Each of the major browsers have their own wasm runtime to support these kind of applications.
 
 # Why should you care?
 
@@ -33,7 +33,7 @@ We'll be using Emscripten to compile the centipede program into WebAssembly. It'
 
 ![](./static/emscripten.png)
 
-Once the HTML & JS code and WASM modules are ready we can use any http server to serve them. Just like HTML and JS, browser downloads the WebAssembly module. Then, it can make the short hop from WebAssembly to that target machine’s assembly code (x86 or ARM).
+Once the HTML & JS code and WASM modules are ready we can use any http server to serve them. Just like HTML and JS, browser downloads the wasm module. Then, it can make the short hop from WebAssembly to that target machine’s assembly code (x86 or ARM).
 
 Before we go forward with the port there are some things we need to take care of such as to modify file handling to adapt to the limitations of the browser/JavaScript. The support for legacy OpenGL features and commands is also not great so going into this I was not expecting a flawless 1:1 port. I expected to make significant modifications to my program to address these limitations. However, as we’ll see during the porting process, the adjustments required are minimal. In fact, the only changes I needed to make involved commenting out or swapping a few unsupported OpenGL functions in Emscripten.
 
@@ -122,7 +122,7 @@ There you have it, a C++ program running on web!
 
 # Fin.
 
-This project provided an excellent opportunity to refresh my understanding of WebAssembly. The technology continues to advance, with its feature set expanding to include multithreading, SIMD support, garbage collection, improved debugging infrastructure, and 64-bit addressing, among other improvements. In 2022, Wasmtime, a popular WebAssembly runtime reached 1.0; being fully production ready. You can read more about it in [this blog](https://bytecodealliance.org/articles/wasmtime-1-0-fast-safe-and-production-ready?ref=abdullahxz.github.io) by Lin Clark whose work was an invaluable resource during this weekend project. WebAssembly bridges the gap between native and web environments, creating new possibilities for performance-intensive, secure and scalable applications both inside and outside the browser. As the ecosystem matures, the opportunities for developers will only grow, making this a fascinating space to watch and experiment with.
+This small project provided an excellent opportunity to refresh my understanding of WebAssembly. The technology continues to advance, with its feature set expanding to include multithreading, relaxed SIMD support, garbage collection, improved debugging infrastructure, and 64-bit addressing, among other improvements. A set of proposals could be found [here](https://github.com/WebAssembly/proposals). I'd also like to credit Lin Clark whose work was an invaluable resource during this weekend project, she does an awesome job with [code cartoons](https://www.code-cartoons.com/). WebAssembly bridges the gap between native and web environments, creating new possibilities for performance-intensive, secure and scalable applications both inside and outside the browser. As the ecosystem matures, the opportunities for developers will only grow, making this a fascinating space to watch and experiment with.
 
 You can find the code, [here](https://github.com/Abdullahxz/centipede-webassembly). I also made some last minute changes so the game would look more like this when you run it.
 
