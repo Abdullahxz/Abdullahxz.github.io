@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>Abdullahxz</title>
+    <link rel="self" type="application/atom+xml" href="https://abdullahxz.github.io/atom.xml"/>
+    <link rel="alternate" type="text/html" href="https://abdullahxz.github.io"/>
+    <generator uri="https://www.getzola.org/">Zola</generator>
+    <updated>2024-09-21T00:00:00+00:00</updated>
+    <id>https://abdullahxz.github.io/atom.xml</id>
+    <entry xml:lang="en">
+        <title>Running an OpenGL game with WebAssembly</title>
+        <published>2024-09-21T00:00:00+00:00</published>
+        <updated>2024-09-21T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://abdullahxz.github.io/posts/centipede-webassembly/"/>
+        <id>https://abdullahxz.github.io/posts/centipede-webassembly/</id>
+        
+        <content type="html" xml:base="https://abdullahxz.github.io/posts/centipede-webassembly/">&lt;style&gt;
+main img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+&lt;&#x2F;style&gt;
+&lt;h1 id=&quot;what-even-is-webassembly&quot;&gt;What even is WebAssembly?&lt;&#x2F;h1&gt;
+&lt;p&gt;WebAssembly introduces huge implications for what&#x27;s possible on the web platform, it&#x27;s a binary instruction format optimized for fast execution, allowing code written in languages like C, C++, and Rust to run with near-native speed in the browser. By operating as a low-level virtual machine, WebAssembly executes tasks in a manner similar to how native applications do, but within the web&#x27;s security sandbox. This makes it possible to run performance intensive applications, such as video games, computer vision, virtual and augmented reality, and realtime data intensive visualizations, directly in the browser. Each of the major browsers have their own wasm runtime to support these kind of applications.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;why-should-you-care&quot;&gt;Why should you care?&lt;&#x2F;h1&gt;
+&lt;p&gt;Beyond just the browser environment, WebAssembly opens up a wide range of applications including microservices, serverless, 3rd party plugin systems, databases, analytics, and event streaming, among others. Its lower start-up time than other similar technologies, such as JS isolates and containers along with being sandboxed-by-default and also the fact that it runs at near native speed are some of the reasons for a wide range of use cases. If you have previous experience getting bottlenecked by JavaScript&#x27;s performance in browsers, WebAssembly is a welcome addition to the web ecosystem. I have had my MacBook Pro give up when working with data intensive visualizations in &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.datadoghq.com&#x2F;&quot;&gt;DataDog&lt;&#x2F;a&gt; or when playing with Shaders in &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.shadertoy.com&#x2F;&quot;&gt;ShaderToy&lt;&#x2F;a&gt;. I&#x27;ve also read about how JavaScript was like pre JIT compilation but back then it was the only option if you wanted to run code in browser to interact with the web page. You can think of WebAssembly as a new programming language which is much faster than JavaScript and can run in browsers as well. This does not mean that WebAssembly is intended to replace JavaScript, it&#x27;s designed to work alongside JS which makes it possible to combine WebAssembly’s speed with JavaScript&#x27;s flexibility. Most of the adoptions which we will see will not be full WebAssembly codebases, but both JS and WebAssmbly being used in a single application complementing each other. If interested, you can read about these use cases in detail, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bytecodealliance.org&#x2F;articles&#x2F;wasmtime-1-0-fast-safe-and-production-ready?ref=abdullahxz.github.io&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;getting-hands-dirty&quot;&gt;Getting Hands Dirty&lt;&#x2F;h1&gt;
+&lt;p&gt;I&#x27;ve been looking at WebAssembly for years now (wrote one hello world program years ago) and only very recently decided to dive deeper with an interesting enough project to fuel my weekends. Centipede is a vertically oriented fixed shooter arcade game produced by Atari, Inc. in June 1981. The game was designed by Dona Bailey and Ed Logg. The player fights off centipedes, spiders, scorpions, and ants, completing a round after eliminating the centipede that winds down the playing field. It was one of our semester projects in university and just the right fit for this project.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;abdullahxz.github.io&#x2F;posts&#x2F;centipede-webassembly&#x2F;.&#x2F;static&#x2F;centipede.gif&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;compiler-toolchain&quot;&gt;Compiler toolchain&lt;&#x2F;h2&gt;
+&lt;p&gt;We&#x27;ll be using Emscripten to compile the centipede program into WebAssembly. It&#x27;s an open source compiler toolchain using &lt;code&gt;emcc&lt;&#x2F;code&gt; as a frontend and &lt;code&gt;Clang&lt;&#x2F;code&gt; and &lt;code&gt;LLVM&lt;&#x2F;code&gt; as backend. Besides that, Emscripten can also generate the &quot;glue&quot; JavaScript and HTML code which comes in handy especially in an experimental project like this one. This is needed to handle memory allocation, memory leaks, and a host of other problems such as for now, WebAssembly cannot currently directly access the DOM, it can only call JavaScript, passing in integer and floating point primitive data types. Thus, to access any Web API, WebAssembly needs to call out to JavaScript, which then makes the Web API call.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;abdullahxz.github.io&#x2F;posts&#x2F;centipede-webassembly&#x2F;.&#x2F;static&#x2F;emscripten.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Once the HTML &amp;amp; JS code and WASM modules are ready we can use any http server to serve them. Just like HTML and JS, browser downloads the wasm module. Then, it can make the short hop from WebAssembly to that target machine’s assembly code (x86 or ARM).&lt;&#x2F;p&gt;
+&lt;p&gt;Before we go forward with the port there are some things we need to take care of such as to modify file handling to adapt to the limitations of the browser&#x2F;JavaScript. The support for legacy OpenGL features and commands is also not great so going into this I was not expecting a flawless 1:1 port. I expected to make significant modifications to my program to address these limitations. However, as we’ll see during the porting process, the adjustments required are minimal. In fact, the only changes I needed to make involved commenting out or swapping a few unsupported OpenGL functions in Emscripten.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;okay-here-it-goes&quot;&gt;Okay, Here it Goes&lt;&#x2F;h2&gt;
+&lt;p&gt;For the port itself, all that is needed is using &lt;code&gt;em++&lt;&#x2F;code&gt; as a drop in replacement for &lt;code&gt;g++&lt;&#x2F;code&gt;. There are also a handful of linker flags which are needed to enable support for legacy GL features and other performance optimizations, some of them being&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;LEGACY_GL_EMULATION
+&lt;ul&gt;
+&lt;li&gt;Enables legacy GL support.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;GL_UNSAFE_OPTS
+&lt;ul&gt;
+&lt;li&gt;Enables some potentially-unsafe optimizations in GL emulation code by attempting to skip redundant GL work and cleanup. It is enabled by default but we set this to false.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;STACK_SIZE
+&lt;ul&gt;
+&lt;li&gt;The total stack size. There is no way to enlarge the stack, so this value must be large enough for the program’s requirements. Setting this to a lower value than your program needs will cause it to crash.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;EXIT_RUNTIME
+&lt;ul&gt;
+&lt;li&gt;By default Emscripten does not include code to shut down the runtime. Building with EXIT_RUNTIME will include the code to do so.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;-o game.html
+&lt;ul&gt;
+&lt;li&gt;Specifies that we want Emscripten to generate an HTML page to run our code in and the filename to use, as well as the Wasm module and the JavaScript glue code to compile and instantiate the Wasm so it can be used in the web environment.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;legacy-leagacy-legacy&quot;&gt;Legacy Leagacy Legacy&lt;&#x2F;h3&gt;
+&lt;p&gt;The first time I ran the project in web turned out to be a bit of let-down. There were no mushrooms on the screen and the browser&#x27;s console was overflowing with errors.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;abdullahxz.github.io&#x2F;posts&#x2F;centipede-webassembly&#x2F;.&#x2F;static&#x2F;wasm-no-mushrooms.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;The faulty code was the following Torus2d function which was being used to draw the Mushroom&#x27;s hat.&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#fafafa;color:#61676c;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;Torus2d&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;x&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;angle&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;length&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;radius&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;width&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;unsigned int &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;samples&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;color&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;	angle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;Deg2Rad&lt;&#x2F;span&gt;&lt;span&gt;(angle)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	length &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;Deg2Rad&lt;&#x2F;span&gt;&lt;span&gt;(length)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(color) {
+&lt;&#x2F;span&gt;&lt;span&gt;		&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glColor3fv&lt;&#x2F;span&gt;&lt;span&gt;(color)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	}
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(samples &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;&amp;lt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;		samples &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;const float&lt;&#x2F;span&gt;&lt;span&gt; outer &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; radius &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; width&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glBegin&lt;&#x2F;span&gt;&lt;span&gt;(GL_QUAD_STRIP)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;unsigned int&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;&amp;lt;=&lt;&#x2F;span&gt;&lt;span&gt; samples&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;++&lt;&#x2F;span&gt;&lt;span&gt;i) {
+&lt;&#x2F;span&gt;&lt;span&gt;		&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float&lt;&#x2F;span&gt;&lt;span&gt; a &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; angle &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;+ &lt;&#x2F;span&gt;&lt;span&gt;(i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;&#x2F; &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float&lt;&#x2F;span&gt;&lt;span&gt;)samples) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt; length&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;		&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glVertex2f&lt;&#x2F;span&gt;&lt;span&gt;(x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; radius &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07171;&quot;&gt;cos&lt;&#x2F;span&gt;&lt;span&gt;(a)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span&gt; y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; radius &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07171;&quot;&gt;sin&lt;&#x2F;span&gt;&lt;span&gt;(a))&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;		&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glVertex2f&lt;&#x2F;span&gt;&lt;span&gt;(x &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; outer &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07171;&quot;&gt;cos&lt;&#x2F;span&gt;&lt;span&gt;(a)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span&gt; y &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;+&lt;&#x2F;span&gt;&lt;span&gt; outer &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f07171;&quot;&gt;sin&lt;&#x2F;span&gt;&lt;span&gt;(a))&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	}
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glEnd&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Upon looking into this, turns out &lt;code&gt;GL_QUAD_STRIP&lt;&#x2F;code&gt; was the issue as it would just not run in browser. This made sense to me because I knew QUADS were no longer a primitive in OpenGL as they were deprecated in &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.khronos.org&#x2F;opengl&#x2F;wiki&#x2F;primitive#Quads&quot;&gt;OpenGL 3.0&lt;&#x2F;a&gt; so I swapped it with the next closest thing, a &lt;code&gt;GL_TRIANGLE_STRIP&lt;&#x2F;code&gt; primitive, which appears to be working well.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;abdullahxz.github.io&#x2F;posts&#x2F;centipede-webassembly&#x2F;.&#x2F;static&#x2F;wasm-mushrooms.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;If you notice closely, the score is also not getting displyed in the browser environment. Following is the C++ code to draw a string on the canvas&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;cpp&quot; style=&quot;background-color:#fafafa;color:#61676c;&quot; class=&quot;language-cpp &quot;&gt;&lt;code class=&quot;language-cpp&quot; data-lang=&quot;cpp&quot;&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;void &lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;DrawString&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;x&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;const&lt;&#x2F;span&gt;&lt;span&gt; string&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;&amp;amp; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;score&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;float &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;* &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;color&lt;&#x2F;span&gt;&lt;span&gt;) {
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glPushMatrix&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glLoadIdentity&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glDisable&lt;&#x2F;span&gt;&lt;span&gt;(GL_TEXTURE_2D)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glBindTexture&lt;&#x2F;span&gt;&lt;span&gt;(GL_TEXTURE_2D&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	GLvoid &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;*&lt;&#x2F;span&gt;&lt;span&gt;font_style &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;=&lt;&#x2F;span&gt;&lt;span&gt; GLUT_BITMAP_TIMES_ROMAN_24&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;(color)
+&lt;&#x2F;span&gt;&lt;span&gt;		&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glColor3fv&lt;&#x2F;span&gt;&lt;span&gt;(color)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glRasterPos3f&lt;&#x2F;span&gt;&lt;span&gt;(x&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span&gt; y&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#fa6e32;&quot;&gt;int&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;= &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ff8f40;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;&lt;&#x2F;span&gt;&lt;span&gt; i &lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;&amp;lt;&lt;&#x2F;span&gt;&lt;span&gt; score&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;size&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;&lt;&#x2F;span&gt;&lt;span&gt; i&lt;&#x2F;span&gt;&lt;span style=&quot;color:#ed9366;&quot;&gt;++&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;		&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glutBitmapCharacter&lt;&#x2F;span&gt;&lt;span&gt;(font_style&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;,&lt;&#x2F;span&gt;&lt;span&gt; score[i])&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;	&lt;&#x2F;span&gt;&lt;span style=&quot;color:#f29718;&quot;&gt;glPopMatrix&lt;&#x2F;span&gt;&lt;span&gt;()&lt;&#x2F;span&gt;&lt;span style=&quot;color:#61676ccc;&quot;&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The issue with this approach to draw on canvas is that it uses a lot from the deprecated fixed function pipeline of OpenGL and porting it to modern OpenGL requires extra effort which I believe is for some other weekend, maybe next. So for now I can live without seeing my single digit score on the corner of my screen.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;it-s-a-feature&quot;&gt;It&#x27;s a Feature&lt;&#x2F;h3&gt;
+&lt;p&gt;Now all that remains is when the player collides with in game objects like centipede, spider or fleas the game is over and is supposed to exit, but it does not in this case. Earlier I mentioned EXIT_RUNTIME linker flag which is used to include code to exit the runtime. By default Emscripten does not include code to shut down the runtime. This means that when main() exits, it does not flush the stdio streams, or call the destructors of global C++ objects, or call atexit callbacks. This lets it emit smaller code by default, and is normally what you want on the web: even though main() exited, you may have something asynchronous happening later that you want to execute. Even when building with EXIT_RUNTIME it did not exit the runtime and asked to use &lt;code&gt;emscripten_force_exit&lt;&#x2F;code&gt; if we want to force a true shutdown. I, for once, did not want to call JavaScript from my C++ code so I skipped this. Now, when the player dies, it does not exit the runtime; essentially giving the player unlimited lives.&lt;&#x2F;p&gt;
+&lt;p&gt;There you have it, a C++ program running on web!&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;abdullahxz.github.io&#x2F;posts&#x2F;centipede-webassembly&#x2F;.&#x2F;static&#x2F;wasm-centipede.gif&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;fin&quot;&gt;Fin.&lt;&#x2F;h1&gt;
+&lt;p&gt;This small project provided an excellent opportunity to refresh my understanding of WebAssembly. The technology continues to advance, with its feature set expanding to include multithreading, relaxed SIMD support, garbage collection, improved debugging infrastructure, and 64-bit addressing, among other improvements. A set of proposals could be found &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;WebAssembly&#x2F;proposals&quot;&gt;here&lt;&#x2F;a&gt;. I&#x27;d also like to credit Lin Clark whose work was an invaluable resource during this weekend project, she does an awesome job with &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;www.code-cartoons.com&#x2F;&quot;&gt;code cartoons&lt;&#x2F;a&gt;. WebAssembly bridges the gap between native and web environments, creating new possibilities for performance-intensive, secure and scalable applications both inside and outside the browser. As the ecosystem matures, the opportunities for developers will only grow, making this a fascinating space to watch and experiment with.&lt;&#x2F;p&gt;
+&lt;p&gt;You can find the code, &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;github.com&#x2F;Abdullahxz&#x2F;centipede-webassembly&quot;&gt;here&lt;&#x2F;a&gt;. I also made some last minute changes so the game would look more like this when you run it.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;img src=&quot;https:&#x2F;&#x2F;abdullahxz.github.io&#x2F;posts&#x2F;centipede-webassembly&#x2F;.&#x2F;static&#x2F;centipede-on-web.png&quot; alt=&quot;&quot; &#x2F;&gt;&lt;&#x2F;p&gt;
+&lt;h1 id=&quot;sources&quot;&gt;Sources&lt;&#x2F;h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;developer.mozilla.org&#x2F;en-US&#x2F;docs&#x2F;WebAssembly&#x2F;Concepts&quot;&gt;Mozilla Docs&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;hacks.mozilla.org&#x2F;category&#x2F;javascript&#x2F;&quot;&gt;Mozilla Blogs&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bytecodealliance.org&#x2F;&quot;&gt;Bytecode Alliance&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;leaddev.com&#x2F;community&#x2F;lin-clark&quot;&gt;Lin Clark&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;emscripten.org&#x2F;docs&#x2F;introducing_emscripten&#x2F;about_emscripten.html&quot;&gt;Emscripten&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+</content>
+        
+    </entry>
+    <entry xml:lang="en">
+        <title>Hello, World!</title>
+        <published>2024-09-08T00:00:00+00:00</published>
+        <updated>2024-09-08T00:00:00+00:00</updated>
+        
+        <author>
+          <name>
+            
+              Unknown
+            
+          </name>
+        </author>
+        
+        <link rel="alternate" type="text/html" href="https://abdullahxz.github.io/posts/hello-world/"/>
+        <id>https://abdullahxz.github.io/posts/hello-world/</id>
+        
+        <content type="html" xml:base="https://abdullahxz.github.io/posts/hello-world/">&lt;p&gt;👋 Hi, I’m Abdullah, a software engineer with a deep-seated passion for distributed systems, containers, and system architecture. My journey in technology has been driven by an insatiable curiosity and a desire to truly understand the inner workings of the systems we build and rely on. I also occasionally write code that requires actual effort, but prefer not to; which is probably why you are reading this intro post with a title more clichéd than a B2B AI enabled SaaS startup.&lt;&#x2F;p&gt;
+&lt;p&gt;In my free time I read weird blogs, build projects, watch podcasts I don&#x27;t understand, and sporadically go swimming. I love reasoning about, improving, and designing systems and infrastructure.&lt;&#x2F;p&gt;
+&lt;p&gt;An abridged list of things I am passionate about:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Architecture.&lt;&#x2F;li&gt;
+&lt;li&gt;Walkable cities.&lt;&#x2F;li&gt;
+&lt;li&gt;Traveling.&lt;&#x2F;li&gt;
+&lt;li&gt;Space.&lt;&#x2F;li&gt;
+&lt;li&gt;Sports.&lt;&#x2F;li&gt;
+&lt;li&gt;Mathematics.&lt;&#x2F;li&gt;
+&lt;li&gt;Aerospace Engineering.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;The way we live is shaped by the cities we live in, so it’s important to get them right. Every new neighbourhood I have been to makes it hard for people to walk to the local market, necessitating owning a car. Neighbourhoods should be designed for people and not cars. What does a town need &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;bahriatown.com&#x2F;road-network&#x2F;#:~:text=Inspired%20by%20Shiekh,and%20Super%20Highway&quot;&gt;400ft wide, 18 lane&lt;&#x2F;a&gt; road for? There are a myriad of health and economic benefits to designing walkable cities which probably deserve a longer write-up. Maybe tomorrow. As Hillel famously said,&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If I am not for myself, then who will be for me? And if I am only for myself, then what am I? And if not now, when?&lt;br&gt;
+— &lt;cite&gt;Hillel&lt;&#x2F;cite&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Engineering cutriosity has become second nature to me at this point. And this interest extends far beyond computers for me. It&#x27;s the same reason which got me interested in math, engineering principles, and &lt;a rel=&quot;noopener&quot; target=&quot;_blank&quot; href=&quot;https:&#x2F;&#x2F;worrydream.com&#x2F;refs&#x2F;Hamming_1997_-_The_Art_of_Doing_Science_and_Engineering.pdf&quot;&gt;the art of doing science and engineering&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Some people never go crazy. What truly horrible lives they must lead.&lt;br&gt;
+— &lt;cite&gt;Charles Bukowski&lt;&#x2F;cite&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Outside of work and personal interests, I like to spend time with a few special people. They keep me grounded, challenge my thinking, and help me grow.&lt;&#x2F;p&gt;
+&lt;p&gt;While this post is a bit more personal, most of what you’ll find here will be related to computer science and the stuff I work on. I’ll probably ramble from time to time about programming languages, algorithms, best practices, system design, and also my terrible code. I’m excited to share what I learn and hopefully provide something valuable as in what not to do. I will leave you with this excerpt from Structure and Interpretation of Computer Programs by Abelson and Sussman.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Programs should be written for people to read, and only incidentally for machines to execute.&lt;br&gt;
+— &lt;cite&gt;Harold Abelson and Gerald Jay Sussman (Structure and Interpretation of Computer Programs)&lt;&#x2F;cite&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+</content>
+        
+    </entry>
+</feed>
