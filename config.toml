@@ -7,9 +7,8 @@ minify_html = true
 theme = "apollo"
 taxonomies = [{ name = "tags" }]
 
-[markdown]
-highlight_code = true
-highlight_theme = "ayu-light"
+[markdown.highlighting]
+theme = "ayu-light"
 external_links_target_blank = true
 
 [extra]
